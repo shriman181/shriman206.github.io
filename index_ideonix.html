@@ -1,0 +1,980 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ideonix — Transfer the process, not a description of it</title>
+<meta name="description" content="Ideonix builds the executable model of a biomanufacturing process — design space, equipment sensitivity and failure history — so the receiving site can interrogate it before the first GMP batch.">
+<meta name="theme-color" content="#000000">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Ideonix — Transfer the process, not a description of it">
+<meta property="og:description" content="The executable model of a biomanufacturing process. Facility fit, comparability and transfer risk, computed before the first engineering batch.">
+<meta property="og:url" content="https://ideonix.cloud/">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cg fill='none' stroke='%237C5CFF' stroke-width='2.4' stroke-linecap='round'%3E%3Cpath d='M4 16h9'/%3E%3Cpath d='M13 16c6 0 6.5-8 14-8'/%3E%3Cpath d='M13 16c6 0 6.5 8 14 8'/%3E%3C/g%3E%3Ccircle cx='13' cy='16' r='2.6' fill='%237C5CFF'/%3E%3C/svg%3E">
+<style>
+/* ============================================================
+   IDEONIX — design tokens
+   ============================================================ */
+:root{
+  --bg:#000;
+  --surface:rgba(13,13,17,.60);
+  --surface-2:rgba(19,19,25,.55);
+  --surface-3:rgba(24,24,31,.72);
+  --border:rgba(255,255,255,.08);
+  --border-mid:rgba(255,255,255,.14);
+  --border-strong:rgba(255,255,255,.22);
+  --text:#fff;
+  --muted:#9AA1B0;
+  --muted-dim:#767D8C;
+  --accent:#7C5CFF;
+  --accent-bright:#A78BFF;
+  --accent-dim:rgba(124,92,255,.16);
+  --accent-solid:#6340DC;
+  --accent-solid-hover:#6E4BE8;
+  --ok:#3FD68C;
+  --warn:#E0A94A;
+  --mono:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+  --sans:"Inter",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  --maxw:1240px;
+  --pad:clamp(20px,4vw,48px);
+  --sect:clamp(88px,11vw,152px);
+  --glass:blur(18px) saturate(130%);
+}
+
+*,*::before,*::after{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%;scroll-behavior:smooth}
+body{
+  margin:0;background:var(--bg);color:var(--text);
+  font-family:var(--sans);font-weight:400;font-size:17px;line-height:1.6;
+  -webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;
+  overflow-x:hidden;
+}
+img{max-width:100%;display:block}
+a{color:inherit;text-decoration:none}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+:focus-visible{outline:2px solid var(--accent-bright);outline-offset:3px;border-radius:4px}
+
+.wrap{width:100%;max-width:var(--maxw);margin:0 auto;padding-left:var(--pad);padding-right:var(--pad)}
+.section{padding-top:var(--sect);padding-bottom:var(--sect);position:relative}
+.section--tight{padding-top:clamp(64px,8vw,104px);padding-bottom:clamp(64px,8vw,104px)}
+
+.skip{position:absolute;left:-9999px;top:0;z-index:200;background:var(--accent);color:#fff;padding:12px 20px;border-radius:0 0 10px 0}
+.skip:focus{left:0}
+
+/* ---------- type primitives ---------- */
+.eyebrow{
+  font-family:var(--mono);font-size:11px;font-weight:500;letter-spacing:.22em;
+  text-transform:uppercase;color:var(--accent);margin:0 0 26px;display:block;
+}
+.h-xl{
+  font-weight:300;font-size:clamp(34px,5vw,64px);line-height:1.04;
+  letter-spacing:-.025em;margin:0;
+}
+.h-lg{
+  font-weight:300;font-size:clamp(28px,3.6vw,44px);line-height:1.1;
+  letter-spacing:-.022em;margin:0;
+}
+.h-md{font-weight:500;font-size:19px;line-height:1.35;letter-spacing:-.012em;margin:0 0 12px}
+.statement{
+  font-weight:300;font-size:clamp(28px,4.4vw,58px);line-height:1.14;
+  letter-spacing:-.025em;margin:0;max-width:19ch;
+}
+.statement--wide{max-width:26ch}
+.hl{color:var(--accent)}
+.lead{color:var(--muted);font-weight:300;font-size:clamp(16px,1.35vw,19px);line-height:1.65;margin:0;max-width:62ch}
+.body-sm{color:var(--muted);font-size:15px;line-height:1.62;margin:0}
+
+/* ---------- buttons ---------- */
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:9px;
+  height:50px;padding:0 26px;border-radius:999px;
+  font-size:14.5px;font-weight:500;letter-spacing:-.005em;white-space:nowrap;
+  border:1px solid transparent;cursor:pointer;
+  transition:transform .28s cubic-bezier(.2,.7,.3,1),background-color .28s,border-color .28s,color .28s,box-shadow .28s;
+}
+.btn:hover{transform:translateY(-2px)}
+.btn--accent{background:var(--accent-solid);color:#fff}
+.btn--accent:hover{background:var(--accent-solid-hover);box-shadow:0 10px 30px -10px rgba(124,92,255,.7)}
+.btn--white{background:#fff;color:#000}
+.btn--white:hover{background:#EDEBFF;box-shadow:0 10px 30px -12px rgba(255,255,255,.4)}
+.btn--ghost{border-color:var(--border-strong);color:#fff;background:rgba(255,255,255,.02)}
+.btn--ghost:hover{border-color:var(--accent-bright);color:var(--accent-bright);background:rgba(124,92,255,.07)}
+.btn--sm{height:42px;padding:0 20px;font-size:13.5px}
+.btn-row{display:flex;flex-wrap:wrap;gap:14px}
+
+/* ---------- nav ---------- */
+.nav{
+  position:fixed;top:0;left:0;right:0;z-index:100;
+  padding:20px 0;transition:padding .35s ease,background-color .35s ease;
+}
+.nav.is-scrolled{padding:11px 0;background:rgba(0,0,0,.55);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
+.nav-inner{display:flex;align-items:center;justify-content:space-between;gap:20px}
+.brand{display:flex;align-items:center;gap:11px;transition:opacity .3s ease,transform .3s ease}
+.brand-mark{width:30px;height:30px;flex:none;color:var(--accent)}
+.brand-name{font-size:19px;font-weight:500;letter-spacing:-.03em}
+.nav.is-scrolled .brand{opacity:0;transform:translateX(-10px);pointer-events:none}
+
+.pill{
+  display:flex;align-items:center;gap:6px;
+  background:var(--surface-3);backdrop-filter:var(--glass);-webkit-backdrop-filter:var(--glass);
+  border:1px solid var(--border);border-radius:999px;
+  padding:7px 7px 7px 14px;transition:padding .35s ease,gap .35s ease;
+}
+.nav.is-scrolled .pill{padding:5px 5px 5px 8px}
+.pill-mark{
+  width:0;height:26px;opacity:0;overflow:hidden;color:var(--accent);flex:none;
+  transition:width .35s ease,opacity .3s ease,margin .35s ease;
+}
+.nav.is-scrolled .pill-mark{width:26px;opacity:1;margin-right:6px}
+.nav-links{display:flex;align-items:center;gap:2px}
+.nav-link{
+  position:relative;display:inline-flex;align-items:center;gap:7px;
+  padding:8px 13px;border-radius:999px;font-size:14px;color:var(--muted);
+  transition:color .25s ease,background-color .25s ease;
+}
+.nav-link:hover{color:#fff}
+.nav-link .dot{width:5px;height:5px;border-radius:50%;background:var(--accent);opacity:0;transform:scale(.4);transition:opacity .3s,transform .3s}
+.nav-link.is-active{color:#fff}
+.nav-link.is-active .dot{opacity:1;transform:scale(1)}
+.nav-cta{margin-left:6px}
+.burger{display:none;width:42px;height:42px;border-radius:999px;border:1px solid var(--border);align-items:center;justify-content:center;background:var(--surface-3);backdrop-filter:var(--glass)}
+.burger span{display:block;width:16px;height:1.5px;background:#fff;position:relative;transition:transform .3s,background-color .3s}
+.burger span::before,.burger span::after{content:"";position:absolute;left:0;width:16px;height:1.5px;background:#fff;transition:transform .3s}
+.burger span::before{top:-5px}
+.burger span::after{top:5px}
+.burger[aria-expanded="true"] span{background:transparent}
+.burger[aria-expanded="true"] span::before{transform:translateY(5px) rotate(45deg)}
+.burger[aria-expanded="true"] span::after{transform:translateY(-5px) rotate(-45deg)}
+
+.mobile-menu{
+  position:fixed;inset:0;z-index:99;background:rgba(0,0,0,.94);
+  backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+  display:flex;flex-direction:column;justify-content:center;gap:6px;
+  padding:0 var(--pad);opacity:0;visibility:hidden;transition:opacity .3s ease,visibility .3s;
+}
+.mobile-menu.is-open{opacity:1;visibility:visible}
+.mobile-menu a{font-size:30px;font-weight:300;letter-spacing:-.03em;padding:12px 0;border-bottom:1px solid var(--border)}
+.mobile-menu .btn{margin-top:26px;align-self:flex-start}
+
+/* ---------- hero ---------- */
+.hero{position:relative;min-height:100svh;display:flex;padding-top:150px;padding-bottom:0}
+.hero-bg{
+  position:absolute;inset:0;z-index:0;
+  background-color:#07070B;
+  background-image:
+    linear-gradient(180deg,rgba(0,0,0,.80) 0%,rgba(0,0,0,.62) 42%,rgba(0,0,0,.94) 100%),
+    linear-gradient(92deg,rgba(0,0,0,.92) 0%,rgba(0,0,0,.35) 55%,rgba(10,6,30,.55) 100%),
+    url("https://images.unsplash.com/photo-1748349221526-33b51820b21e?auto=format&fit=crop&w=2400&q=72"),
+    radial-gradient(120% 90% at 70% 20%,#1A1330 0%,#07070B 60%);
+  background-size:cover,cover,cover,cover;
+  background-position:center,center,center 30%,center;
+}
+.hero-inner{position:relative;z-index:2;width:100%;margin-top:auto;margin-bottom:auto}
+.hero h1{
+  font-weight:300;font-size:clamp(44px,7.2vw,104px);line-height:.98;
+  letter-spacing:-.035em;margin:0 0 26px;max-width:15ch;
+}
+.hero h1 .l2{display:block;color:#fff}
+.hero h1 .l1{display:block;color:rgba(255,255,255,.62)}
+.hero-sub{color:var(--muted);font-weight:300;font-size:clamp(16px,1.5vw,20px);line-height:1.55;max-width:60ch;margin:0 0 34px}
+.hero-cta{margin-bottom:clamp(52px,7vw,86px)}
+
+/* ---------- demo card ---------- */
+.demo{
+  position:relative;z-index:3;margin-bottom:-90px;
+  background:var(--surface);backdrop-filter:var(--glass);-webkit-backdrop-filter:var(--glass);
+  border:1px solid var(--border-mid);border-radius:18px;overflow:hidden;
+  box-shadow:0 40px 90px -40px rgba(0,0,0,.9),0 0 0 1px rgba(255,255,255,.02) inset;
+  max-width:940px;
+}
+.demo-head{display:flex;align-items:center;gap:10px;padding:14px 20px;border-bottom:1px solid var(--border)}
+.demo-dot{width:8px;height:8px;border-radius:50%;background:var(--accent);flex:none}
+.demo-title{font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted-dim)}
+.demo-title strong{color:var(--muted);font-weight:500}
+.demo-body{padding:24px 20px 20px}
+.demo-prompt{
+  font-family:var(--mono);font-size:13.5px;line-height:1.62;color:#E6E6EE;
+  background:rgba(255,255,255,.03);border:1px solid var(--border);border-left:2px solid var(--accent);
+  border-radius:10px;padding:15px 17px;margin:0 0 22px;
+}
+.worker{
+  display:flex;gap:14px;align-items:flex-start;padding:13px 4px;
+  border-bottom:1px solid rgba(255,255,255,.05);
+  opacity:0;transform:translateY(10px);transition:opacity .55s ease,transform .55s ease;
+}
+.worker.is-in{opacity:1;transform:none}
+.worker-tag{font-family:var(--mono);font-size:13px;color:var(--accent-bright);flex:none;width:132px;padding-top:1px}
+.worker-desc{font-size:14px;color:var(--muted);line-height:1.5}
+.worker-desc b{color:#D8D8E2;font-weight:500}
+.demo-done{
+  display:flex;gap:11px;align-items:flex-start;padding:16px 4px 4px;
+  font-family:var(--mono);font-size:13px;line-height:1.6;color:var(--ok);
+  opacity:0;transform:translateY(10px);transition:opacity .55s ease,transform .55s ease;
+}
+.demo-done.is-in{opacity:1;transform:none}
+.demo-done .check{flex:none}
+.demo-input{
+  display:flex;align-items:center;gap:10px;flex-wrap:wrap;
+  margin-top:20px;padding:11px 11px 11px 15px;
+  background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:999px;
+}
+.demo-chip{
+  font-family:var(--mono);font-size:11px;letter-spacing:.06em;color:var(--muted);
+  border:1px solid var(--border-mid);border-radius:999px;padding:5px 11px;
+}
+.demo-caret{flex:1;min-width:80px;font-family:var(--mono);font-size:13px;color:var(--muted-dim)}
+.demo-send{width:34px;height:34px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;flex:none}
+
+/* ---------- split header ---------- */
+.split{display:grid;grid-template-columns:1.05fr .95fr;gap:clamp(28px,5vw,72px);align-items:end;margin-bottom:clamp(40px,5vw,64px)}
+.split-right{display:flex;flex-direction:column;gap:22px;align-items:flex-start}
+
+/* ---------- image + glass panel cards ---------- */
+.cards{display:grid;grid-template-columns:repeat(3,1fr);gap:22px}
+.card{display:flex;flex-direction:column}
+.card-visual{
+  position:relative;border-radius:16px;overflow:hidden;
+  border:1px solid var(--border);
+  aspect-ratio:4/3.35;padding:16px;display:flex;align-items:flex-end;
+  background-color:#0A0A0F;background-size:cover;background-position:center;
+  transition:transform .4s cubic-bezier(.2,.7,.3,1),border-color .4s,box-shadow .4s;
+}
+.card:hover .card-visual{transform:translateY(-5px);border-color:rgba(124,92,255,.42);box-shadow:0 24px 50px -26px rgba(124,92,255,.5)}
+.v1{background-image:linear-gradient(180deg,rgba(0,0,0,.55),rgba(0,0,0,.9)),url("https://images.unsplash.com/photo-1745420052756-1b1c294a6420?auto=format&fit=crop&w=1100&q=70"),linear-gradient(150deg,#171226,#08080C)}
+.v2{background-image:linear-gradient(180deg,rgba(0,0,0,.55),rgba(0,0,0,.9)),url("https://images.unsplash.com/photo-1513828170880-00eeeac21306?auto=format&fit=crop&w=1100&q=70"),linear-gradient(150deg,#171226,#08080C)}
+.v3{background-image:linear-gradient(180deg,rgba(0,0,0,.58),rgba(0,0,0,.92)),url("https://images.unsplash.com/photo-1589792924333-edbfbe7c8be7?auto=format&fit=crop&w=1100&q=70"),linear-gradient(150deg,#171226,#08080C)}
+.v4{background-image:linear-gradient(180deg,rgba(0,0,0,.55),rgba(0,0,0,.9)),url("https://images.unsplash.com/photo-1754372069872-3fef8a815c87?auto=format&fit=crop&w=1100&q=70"),linear-gradient(150deg,#171226,#08080C)}
+.v5{background-image:linear-gradient(180deg,rgba(0,0,0,.55),rgba(0,0,0,.9)),url("https://images.unsplash.com/photo-1607398027609-fbd1a06fb5d4?auto=format&fit=crop&w=1100&q=70"),linear-gradient(150deg,#171226,#08080C)}
+.v6{background-image:linear-gradient(180deg,rgba(0,0,0,.55),rgba(0,0,0,.9)),url("https://images.unsplash.com/photo-1551884170-09fb70a3a2ed?auto=format&fit=crop&w=1100&q=70"),linear-gradient(150deg,#171226,#08080C)}
+
+.panel{
+  width:100%;background:var(--surface-3);backdrop-filter:var(--glass);-webkit-backdrop-filter:var(--glass);
+  border:1px solid var(--border-mid);border-radius:11px;padding:13px 14px;
+}
+.panel-head{
+  display:flex;align-items:center;justify-content:space-between;gap:10px;
+  font-family:var(--mono);font-size:9.5px;letter-spacing:.15em;text-transform:uppercase;
+  color:var(--muted-dim);padding-bottom:9px;margin-bottom:9px;border-bottom:1px solid var(--border);
+}
+.status{font-family:var(--mono);font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;padding:3px 8px;border-radius:999px;white-space:nowrap}
+.status--ok{color:var(--ok);background:rgba(63,214,140,.11);border:1px solid rgba(63,214,140,.3)}
+.status--risk{color:var(--warn);background:rgba(224,169,74,.11);border:1px solid rgba(224,169,74,.32)}
+.status--accent{color:var(--accent-bright);background:var(--accent-dim);border:1px solid rgba(124,92,255,.34)}
+.rows{font-family:var(--mono);font-size:11px;line-height:1.85;color:var(--muted)}
+.row{display:flex;justify-content:space-between;gap:12px}
+.row span:last-child{color:#DEDEE8;text-align:right;white-space:nowrap}
+.rows .row .ok{color:var(--ok)}
+.rows .row .risk{color:var(--warn)}
+.rows .row .acc{color:var(--accent-bright)}
+.rows .row .row-note{color:var(--muted-dim);font-size:10px;text-align:right;display:block;line-height:1.5;white-space:normal}
+.bar{display:flex;align-items:center;gap:8px;font-family:var(--mono);font-size:10.5px;color:var(--muted);line-height:2.1}
+.bar-label{width:96px;flex:none;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.bar-track{flex:1;height:5px;border-radius:3px;background:rgba(255,255,255,.09);overflow:hidden}
+.bar-fill{display:block;height:100%;border-radius:3px;background:var(--accent)}
+.bar-fill.hi{background:var(--warn)}
+.bar-val{width:56px;flex:none;text-align:right;font-size:9.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted-dim)}
+.chat{font-family:var(--mono);font-size:11px;line-height:1.75;color:var(--muted)}
+.chat .q{color:var(--accent-bright);display:block;margin-top:7px}
+.chat .a{color:#D2D2DE;display:block}
+.chat .src{color:var(--muted-dim);font-size:10px;display:block}
+.card-text{padding:20px 2px 0}
+
+/* ---------- pillars ---------- */
+.pillars{display:grid;grid-template-columns:repeat(4,1fr);gap:18px}
+.pillar{
+  background:var(--surface-2);border:1px solid var(--border);border-radius:14px;
+  padding:26px 22px 28px;position:relative;overflow:hidden;
+  transition:border-color .35s ease,transform .35s cubic-bezier(.2,.7,.3,1);
+}
+.pillar:hover{border-color:var(--border-mid);transform:translateY(-4px)}
+.pillar-bar{position:absolute;top:0;left:22px;width:38px;height:2px;border-radius:0 0 2px 2px;background:var(--accent)}
+.pillar h3{font-size:16.5px;font-weight:500;letter-spacing:-.012em;margin:16px 0 10px}
+
+/* ---------- founder ---------- */
+.founder-grid{display:grid;grid-template-columns:.82fr 1.18fr;gap:clamp(28px,5vw,68px);align-items:start}
+.portrait{
+  position:relative;border-radius:18px;overflow:hidden;border:1px solid var(--border-mid);
+  aspect-ratio:4/4.7;display:flex;align-items:flex-end;padding:18px;
+  background:
+    radial-gradient(120% 80% at 50% 0%,rgba(124,92,255,.22) 0%,rgba(0,0,0,0) 62%),
+    linear-gradient(165deg,#14101F 0%,#08080C 100%);
+}
+.portrait-mark{
+  position:absolute;top:50%;left:50%;transform:translate(-50%,-58%);
+  display:flex;flex-direction:column;align-items:center;gap:18px;
+}
+.portrait-mono{
+  font-weight:300;font-size:clamp(56px,7vw,84px);letter-spacing:-.05em;line-height:1;
+  color:#fff;opacity:.94;
+}
+.portrait-mark svg{color:var(--accent);opacity:.9}
+.portrait-badge{
+  position:relative;width:100%;background:var(--surface-3);backdrop-filter:var(--glass);-webkit-backdrop-filter:var(--glass);
+  border:1px solid var(--border-mid);border-radius:12px;padding:13px 15px;
+}
+.portrait-badge .nm{font-size:16px;font-weight:500;letter-spacing:-.015em}
+.portrait-badge .rl{font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--accent);margin-top:5px}
+.pull{
+  border-left:2px solid var(--accent);padding:6px 0 6px 22px;margin:30px 0;
+  font-weight:300;font-size:clamp(18px,1.9vw,23px);line-height:1.45;letter-spacing:-.018em;color:#E9E9F0;
+}
+.founder-copy p{color:var(--muted);font-size:16px;line-height:1.68;margin:0 0 18px;max-width:60ch}
+
+/* ---------- trust ---------- */
+.trust-grid{display:grid;grid-template-columns:1.1fr .9fr;gap:clamp(30px,5vw,72px);align-items:start}
+.tags{display:flex;flex-wrap:wrap;gap:9px;margin-top:28px}
+.tag{
+  font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--muted);border:1px solid var(--border-mid);border-radius:999px;padding:8px 14px;
+  transition:border-color .3s,color .3s;
+}
+.tag:hover{border-color:rgba(124,92,255,.45);color:var(--accent-bright)}
+.dotgrid{
+  border:1px solid var(--border);border-radius:16px;padding:34px 30px;
+  background-image:radial-gradient(rgba(255,255,255,.14) 1px,transparent 1px);
+  background-size:17px 17px;background-color:rgba(10,10,14,.5);
+}
+
+/* ---------- final cta ---------- */
+.final{text-align:center}
+.final .eyebrow{margin-bottom:24px}
+.final h2{font-weight:300;font-size:clamp(32px,5.4vw,72px);line-height:1.04;letter-spacing:-.032em;margin:0 0 34px}
+.final h2 span{display:block}
+.final .btn-row{justify-content:center}
+
+/* ---------- footer ---------- */
+.footer{
+  position:relative;padding-top:clamp(64px,8vw,104px);border-top:1px solid var(--border);
+  background-image:radial-gradient(rgba(255,255,255,.075) 1px,transparent 1px);
+  background-size:22px 22px;overflow:hidden;
+}
+.footer-top{display:grid;grid-template-columns:1.4fr repeat(4,1fr);gap:34px;padding-bottom:56px}
+.footer-tag{color:var(--muted);font-size:14.5px;line-height:1.6;margin:14px 0 0;max-width:30ch}
+.fcol h4{font-family:var(--mono);font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--accent);margin:0 0 16px;font-weight:500}
+.fcol a,.fcol span{display:block;color:var(--muted);font-size:14px;padding:5px 0;transition:color .25s}
+.fcol a:hover{color:#fff}
+.watermark{
+  font-weight:300;font-size:clamp(76px,19vw,260px);letter-spacing:-.055em;line-height:.8;
+  color:rgba(255,255,255,.038);user-select:none;pointer-events:none;
+  white-space:nowrap;margin:0;padding-bottom:6px;
+}
+.footer-bottom{
+  display:flex;flex-wrap:wrap;gap:12px 30px;justify-content:space-between;
+  border-top:1px solid var(--border);padding:24px 0 34px;
+  font-family:var(--mono);font-size:11px;letter-spacing:.06em;color:var(--muted-dim);
+}
+.footer-bottom a:hover{color:var(--accent-bright)}
+
+/* ---------- reveal ---------- */
+.rv{opacity:0;transform:translateY(22px);transition:opacity .8s cubic-bezier(.2,.7,.3,1),transform .8s cubic-bezier(.2,.7,.3,1)}
+.rv.is-in{opacity:1;transform:none}
+
+/* ---------- responsive ---------- */
+@media (max-width:1040px){
+  .cards{grid-template-columns:1fr 1fr}
+  .pillars{grid-template-columns:1fr 1fr}
+  .footer-top{grid-template-columns:1fr 1fr 1fr;gap:30px}
+}
+@media (max-width:900px){
+  .nav-links,.nav-cta{display:none}
+  .burger{display:flex}
+  .pill{padding:5px;background:none;border:0;backdrop-filter:none;-webkit-backdrop-filter:none}
+  .nav.is-scrolled .pill{padding:5px}
+  .nav.is-scrolled .pill-mark{width:0;opacity:0;margin-right:0}
+  .nav.is-scrolled .brand{opacity:1;transform:none;pointer-events:auto}
+  .split,.founder-grid,.trust-grid{grid-template-columns:1fr;align-items:start}
+  .hero{padding-top:130px}
+  .demo{margin-bottom:-70px}
+  .worker-tag{width:118px}
+}
+@media (max-width:680px){
+  body{font-size:16px}
+  .cards,.pillars{grid-template-columns:1fr}
+  .footer-top{grid-template-columns:1fr 1fr}
+  .worker{flex-direction:column;gap:5px}
+  .worker-tag{width:auto}
+  .demo-body{padding:18px 15px 15px}
+  .demo-prompt{font-size:12.5px}
+  .btn{width:100%}
+  .btn-row{width:100%}
+  .statement,.statement--wide{max-width:none}
+}
+@media (prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
+  *,*::before,*::after{animation-duration:.001ms!important;transition-duration:.001ms!important}
+  .rv,.worker,.demo-done{opacity:1!important;transform:none!important}
+}
+</style>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+
+<!-- ============================ NAV ============================ -->
+<header class="nav" id="nav">
+  <div class="wrap nav-inner">
+    <a class="brand" href="#top" aria-label="Ideonix home">
+      <svg class="brand-mark" viewBox="0 0 32 32" fill="none" aria-hidden="true">
+        <g stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
+          <path d="M4 16h9"/><path d="M13 16c6 0 6.5-8 14-8"/><path d="M13 16c6 0 6.5 8 14 8"/>
+        </g>
+        <circle cx="13" cy="16" r="2.6" fill="currentColor"/>
+      </svg>
+      <span class="brand-name">Ideonix</span>
+    </a>
+
+    <div class="pill">
+      <svg class="pill-mark" viewBox="0 0 32 32" fill="none" aria-hidden="true">
+        <g stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
+          <path d="M4 16h9"/><path d="M13 16c6 0 6.5-8 14-8"/><path d="M13 16c6 0 6.5 8 14 8"/>
+        </g>
+        <circle cx="13" cy="16" r="2.6" fill="currentColor"/>
+      </svg>
+      <nav class="nav-links" aria-label="Primary">
+        <a class="nav-link" href="#problem"><span class="dot"></span>Problem</a>
+        <a class="nav-link" href="#how"><span class="dot"></span>How it works</a>
+        <a class="nav-link" href="#capabilities"><span class="dot"></span>Capabilities</a>
+        <a class="nav-link" href="#founder"><span class="dot"></span>Founder</a>
+        <a class="nav-link" href="#trust"><span class="dot"></span>Trust</a>
+      </nav>
+      <a class="btn btn--accent btn--sm nav-cta" href="mailto:founder@ideonix.cloud?subject=Ideonix%20demo">Book a demo</a>
+      <button class="burger" id="burger" aria-expanded="false" aria-controls="mobileMenu" aria-label="Open menu"><span></span></button>
+    </div>
+  </div>
+</header>
+
+<div class="mobile-menu" id="mobileMenu">
+  <a href="#problem">Problem</a>
+  <a href="#how">How it works</a>
+  <a href="#capabilities">Capabilities</a>
+  <a href="#founder">Founder</a>
+  <a href="#trust">Trust</a>
+  <a class="btn btn--accent" href="mailto:founder@ideonix.cloud?subject=Ideonix%20demo">Book a demo</a>
+</div>
+
+<main id="main">
+
+<!-- ============================ HERO ============================ -->
+<section class="hero" id="top">
+  <div class="hero-bg" aria-hidden="true"></div>
+  <div class="wrap hero-inner">
+    <h1 class="rv">
+      <span class="l1">Stop transferring a description.</span>
+      <span class="l2">Transfer the process.</span>
+    </h1>
+    <p class="hero-sub rv">Ideonix turns a biomanufacturing process into a computable model — design space, equipment sensitivity, failure history — so the receiving site can interrogate it before the first GMP batch.</p>
+    <div class="btn-row hero-cta rv">
+      <a class="btn btn--white" href="mailto:founder@ideonix.cloud?subject=Ideonix%20demo">Book a demo</a>
+      <a class="btn btn--ghost" href="#how">See the retrospective</a>
+    </div>
+
+    <!-- animated product demo -->
+    <div class="demo rv" id="demo">
+      <div class="demo-head">
+        <span class="demo-dot" aria-hidden="true"></span>
+        <span class="demo-title"><strong>Process Model</strong> · ID-114 · site B → contract site 7</span>
+      </div>
+      <div class="demo-body">
+        <p class="demo-prompt">Model the transfer of ID-114, a 2,000 L fed-batch mAb, from Site B (stainless) to Contract Site 7 (single-use). Tell me where it breaks before we book an engineering run.</p>
+
+        <div class="worker" data-w>
+          <span class="worker-tag">@corpus</span>
+          <span class="worker-desc">Reads <b>412 batch records</b>, 87 deviation investigations, 14 CAPAs and 9 method transfer reports from the Site B archive.</span>
+        </div>
+        <div class="worker" data-w>
+          <span class="worker-tag">@designspace</span>
+          <span class="worker-desc">Reconstructs critical process parameters <b>as operated, not as filed</b> — and locates the real edge of the design space from where the process has already failed.</span>
+        </div>
+        <div class="worker" data-w>
+          <span class="worker-tag">@facilityfit</span>
+          <span class="worker-desc">Maps the equipment delta — <b>kLa, tip speed, hold volume, capture skid</b> — and separates genuinely scale-dependent steps from ones that merely look risky.</span>
+        </div>
+        <div class="worker" data-w>
+          <span class="worker-tag">@comparability</span>
+          <span class="worker-desc">Ranks which quality attributes are most likely to drift under this specific scale and equipment change, <b>scoping the ICH Q5E protocol</b> before batches are burned.</span>
+        </div>
+
+        <div class="demo-done" id="demoDone">
+          <span class="check" aria-hidden="true">✓</span>
+          <span>Transfer risk forecast complete — 3 high-risk unit operations · first-batch success 61% (±9) · 2 engineering runs expected · 47 provenance links</span>
+        </div>
+
+        <div class="demo-input">
+          <span class="demo-chip">Sponsor view</span>
+          <span class="demo-chip">Receiving site</span>
+          <span class="demo-chip">ICH Q5E</span>
+          <span class="demo-caret">Ask the model…</span>
+          <span class="demo-send" aria-hidden="true">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h13M12 5l7 7-7 7"/></svg>
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ PROBLEM ============================ -->
+<section class="section" id="problem">
+  <div class="wrap">
+    <span class="eyebrow rv">The problem</span>
+    <h2 class="statement statement--wide rv">Around half of technology transfers hit quality problems, and moving to an external site adds close to six months — because the thing that actually makes the process work <span class="hl">was never in the package.</span></h2>
+  </div>
+</section>
+
+<!-- ============================ HOW IT WORKS ============================ -->
+<section class="section" id="how">
+  <div class="wrap">
+    <div class="split">
+      <div class="rv">
+        <span class="eyebrow">How it works</span>
+        <h2 class="h-xl">The process,<br>made computable.</h2>
+      </div>
+      <div class="split-right rv">
+        <p class="lead">A biological process is held together by a handful of people who know that the feed must start before the culture reaches a particular density, and that the deviation logged in batch 214 was the moment everyone learned where the real edge sits. Ideonix reads the record that already exists, builds a provenance-linked model of the process, and forecasts what the receiving site will encounter.</p>
+        <a class="btn btn--ghost" href="mailto:founder@ideonix.cloud?subject=Ideonix%20retrospective">Give us a transfer that failed</a>
+      </div>
+    </div>
+
+    <div class="cards">
+      <!-- card 1 -->
+      <article class="card rv">
+        <div class="card-visual v1">
+          <div class="panel">
+            <div class="panel-head"><span>Ingest · site B archive</span><span class="status status--ok">Parsed</span></div>
+            <div class="rows">
+              <div class="row"><span>development reports</span><span>38 <b class="ok">✓</b></span></div>
+              <div class="row"><span>batch records</span><span>412 <b class="ok">✓</b></span></div>
+              <div class="row"><span>deviation investigations</span><span>87 <b class="ok">✓</b></span></div>
+              <div class="row"><span>CAPAs</span><span>14 <b class="ok">✓</b></span></div>
+              <div class="row"><span>method transfer reports</span><span>9 <b class="ok">✓</b></span></div>
+              <div class="row"><span>historian traces</span><span class="acc">2.1M pts</span></div>
+            </div>
+          </div>
+        </div>
+        <div class="card-text">
+          <h3 class="h-md">Read the record, not the room</h3>
+          <p class="body-sm">Every deviation is an experiment the process ran on itself, at its own edges, and then filed away. Four hundred of them are a map of where the process actually breaks — and no human has ever read all four hundred and asked what they collectively imply.</p>
+        </div>
+      </article>
+
+      <!-- card 2 -->
+      <article class="card rv">
+        <div class="card-visual v2">
+          <div class="panel">
+            <div class="panel-head"><span>Unit op 04 · production bioreactor</span><span class="status status--accent">Modelled</span></div>
+            <div class="rows">
+              <div class="row"><span>pH setpoint</span><span>6.95</span></div>
+              <div class="row"><span>&nbsp;&nbsp;filed / observed</span><span class="row-note">6.80–7.20 / 6.90–7.02</span></div>
+              <div class="row"><span>dissolved O₂</span><span>40 % <b class="risk">scale-dep.</b></span></div>
+              <div class="row"><span>feed trigger</span><span>VCD 8.2e6/mL</span></div>
+              <div class="row"><span>temp shift</span><span>d5 · 36.5→33.0 °C</span></div>
+              <div class="row"><span>provenance</span><span class="acc">BR-2214 · DEV-0087</span></div>
+            </div>
+          </div>
+        </div>
+        <div class="card-text">
+          <h3 class="h-md">Build the Process Model</h3>
+          <p class="body-sm">Unit operations and topology, critical process parameters at their real operating ranges rather than their filed ones, parameter interactions, scale-sensitive steps and observed failure modes — every assertion linked back to the batch, document or dataset it came from.</p>
+        </div>
+      </article>
+
+      <!-- card 3 -->
+      <article class="card rv">
+        <div class="card-visual v3">
+          <div class="panel">
+            <div class="panel-head"><span>Design space · unit op 04</span><span class="status status--risk">Outside</span></div>
+            <svg viewBox="0 0 260 132" width="100%" role="img" aria-label="Design space contour. The originating site's operating point sits inside the acceptable region; the receiving site's predicted operating point sits partly outside the boundary.">
+              <g stroke="rgba(255,255,255,.16)" stroke-width="1">
+                <path d="M42 112 H250" /><path d="M42 112 V16" />
+              </g>
+              <g stroke="rgba(255,255,255,.06)" stroke-width="1">
+                <path d="M42 88 H250"/><path d="M42 64 H250"/><path d="M42 40 H250"/>
+              </g>
+              <path d="M66 100 C60 74 80 44 118 38 C158 32 198 46 202 68 C206 90 176 108 138 106 C102 104 72 114 66 100 Z"
+                    fill="rgba(124,92,255,.15)" stroke="#7C5CFF" stroke-width="1.3" stroke-dasharray="4 3"/>
+              <ellipse cx="216" cy="52" rx="26" ry="18" fill="rgba(224,169,74,.10)" stroke="#E0A94A" stroke-width="1" stroke-dasharray="3 3"/>
+              <circle cx="126" cy="72" r="4" fill="#fff"/>
+              <circle cx="216" cy="52" r="4" fill="#E0A94A"/>
+              <g font-family="JetBrains Mono, monospace" font-size="7.5" fill="#8B93A2">
+                <text x="42" y="126">kLa (h⁻¹)</text>
+                <text x="205" y="126">22</text>
+                <text x="10" y="22">pH 7.2</text>
+                <text x="10" y="112">6.7</text>
+              </g>
+              <g font-family="JetBrains Mono, monospace" font-size="7.5">
+                <text x="86" y="86" fill="#DEDEE8">site B · as operated</text>
+                <text x="150" y="34" fill="#E0A94A">site 7 · predicted</text>
+              </g>
+            </svg>
+          </div>
+        </div>
+        <div class="card-text">
+          <h3 class="h-md">Forecast before you commit</h3>
+          <p class="body-sm">A dated, quantified projection produced before the transfer is committed: probability of first-batch success, expected engineering runs, likely deviation categories, and where the receiving site's predicted operating point falls outside the design space. A range with confidence attached, not a Gantt chart drawn by optimism.</p>
+        </div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ BELIEF ============================ -->
+<section class="section section--tight">
+  <div class="wrap" style="text-align:center;display:flex;flex-direction:column;align-items:center">
+    <span class="eyebrow rv">What we believe</span>
+    <h2 class="statement statement--wide rv" style="max-width:24ch">A process is not a document. It is a system with a design space, scale-dependent behaviour, parameter interactions and a failure history — <span class="hl">and all of it is computable.</span></h2>
+  </div>
+</section>
+
+<!-- ============================ CAPABILITIES ============================ -->
+<section class="section" id="capabilities">
+  <div class="wrap">
+    <div class="split">
+      <div class="rv">
+        <span class="eyebrow">Capabilities</span>
+        <h2 class="h-xl">What the<br>model answers.</h2>
+      </div>
+      <div class="split-right rv">
+        <p class="lead">Incumbent software manages the administration of a transfer: documents, tasks, approvals. It answers whether the paperwork is complete. Ideonix answers whether the process will actually run at the new site — and it keeps answering after the transfer report is signed.</p>
+        <a class="btn btn--ghost" href="#trust">How your data is handled</a>
+      </div>
+    </div>
+
+    <div class="cards">
+      <!-- capability 1 -->
+      <article class="card rv">
+        <div class="card-visual v4">
+          <div class="panel">
+            <div class="panel-head"><span>Equipment delta · B → 7</span><span class="status status--risk">3 flagged</span></div>
+            <div class="rows">
+              <div class="row"><span>vessel</span><span>2,000 L SS → SU</span></div>
+              <div class="row"><span>kLa</span><span>18 → 12 h⁻¹ <b class="risk">▲</b></span></div>
+              <div class="row"><span>tip speed</span><span>1.4 → 1.9 m/s <b class="risk">▲</b></span></div>
+              <div class="row"><span>pool 2 hold</span><span>8 → 26 h <b class="risk">▲</b></span></div>
+              <div class="row"><span>capture skid</span><span>400 → 800 <b class="ok">○</b></span></div>
+              <div class="row"><span>buffer prep</span><span>in-line → batch <b class="ok">○</b></span></div>
+            </div>
+          </div>
+        </div>
+        <div class="card-text">
+          <h3 class="h-md">Facility fit and scale translation</h3>
+          <p class="body-sm">The receiving site has different bioreactor geometry, different mixing and oxygen transfer, different hold capability, different single-use versus stainless configuration. Ideonix models how critical parameters shift under those specific deltas and returns a ranked list of where this transfer will break.</p>
+        </div>
+      </article>
+
+      <!-- capability 2 -->
+      <article class="card rv">
+        <div class="card-visual v5">
+          <div class="panel">
+            <div class="panel-head"><span>Predicted drift · ICH Q5E</span><span class="status status--accent">Scoped</span></div>
+            <div>
+              <div class="bar"><span class="bar-label">afucosylation</span><span class="bar-track"><i class="bar-fill hi" style="width:84%"></i></span><span class="bar-val">High</span></div>
+              <div class="bar"><span class="bar-label">HMW species</span><span class="bar-track"><i class="bar-fill hi" style="width:63%"></i></span><span class="bar-val">Elev.</span></div>
+              <div class="bar"><span class="bar-label">charge variants</span><span class="bar-track"><i class="bar-fill" style="width:34%"></i></span><span class="bar-val">Mod.</span></div>
+              <div class="bar"><span class="bar-label">potency</span><span class="bar-track"><i class="bar-fill" style="width:17%"></i></span><span class="bar-val">Low</span></div>
+              <div class="bar"><span class="bar-label">host cell protein</span><span class="bar-track"><i class="bar-fill" style="width:11%"></i></span><span class="bar-val">Low</span></div>
+              <div class="rows" style="margin-top:8px"><div class="row"><span class="acc">→ protocol scoped to 3 attributes</span><span>not 11</span></div></div>
+            </div>
+          </div>
+        </div>
+        <div class="card-text">
+          <h3 class="h-md">Comparability, pre-computed</h3>
+          <p class="body-sm">Comparability under ICH Q5E is one of the largest time sinks in a transfer. Ideonix predicts which quality attributes are most likely to drift given this specific equipment and scale change, so the protocol is designed against the real risks instead of against everything.</p>
+        </div>
+      </article>
+
+      <!-- capability 3 -->
+      <article class="card rv">
+        <div class="card-visual v6">
+          <div class="panel">
+            <div class="panel-head"><span>MSAT · contract site 7</span><span class="status status--ok">Live</span></div>
+            <div class="chat">
+              <span class="q">&gt; why is pool 2 hold flagged?</span>
+              <span class="a">Three Site B deviations involved an extended pool-2 hold. HMW rose 0.4–0.9 % each time. Site 7's schedule implies 26 h.</span>
+              <span class="src">sources · DEV-0041, DEV-0062, DEV-0079</span>
+              <span class="q">&gt; what would clear it?</span>
+              <span class="a">Hold under 12 h, or an in-process HMW check before load.</span>
+            </div>
+          </div>
+        </div>
+        <div class="card-text">
+          <h3 class="h-md">A model that keeps learning</h3>
+          <p class="body-sm">The model does not close out with the transfer report. It keeps learning from commercial production at the receiving site, which means the next transfer of that process starts from a far richer model and the site's process understanding compounds instead of dispersing.</p>
+        </div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ FOUR PILLARS ============================ -->
+<section class="section section--tight">
+  <div class="wrap">
+    <div style="text-align:center;display:flex;flex-direction:column;align-items:center;margin-bottom:clamp(38px,5vw,58px)">
+      <span class="eyebrow rv">What you get</span>
+      <h2 class="h-lg rv" style="max-width:20ch">Built for the way this industry has to work.</h2>
+    </div>
+    <div class="pillars">
+      <article class="pillar rv"><span class="pillar-bar"></span>
+        <h3>Provenance, not assertion</h3>
+        <p class="body-sm">Every output links to the batch record, dataset or deviation it came from. In a GxP environment an assertion without a source is worthless, so the model never produces one.</p>
+      </article>
+      <article class="pillar rv"><span class="pillar-bar"></span>
+        <h3>Decision support, not a system of record</h3>
+        <p class="body-sm">Ideonix does not release batches, replace the batch record or make quality decisions. Outputs are reviewed and approved through your existing quality system, exactly as an internal assessment would be.</p>
+      </article>
+      <article class="pillar rv"><span class="pillar-bar"></span>
+        <h3>GAMP 5 and Part 11 by design</h3>
+        <p class="body-sm">Designed for GAMP 5 categorisation with 21 CFR Part 11 controls and a full audit trail. Where a Process Model informs a submission it does so as documented rationale supporting a human-authored argument.</p>
+      </article>
+      <article class="pillar rv"><span class="pillar-bar"></span>
+        <h3>Learns across transfers, not across your data</h3>
+        <p class="body-sm">The archetype library is built from process topology and equipment characteristics, never molecule identity. There is a hard architectural line between your process data and anything shared.</p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ FOUNDER ============================ -->
+<section class="section" id="founder">
+  <div class="wrap">
+    <span class="eyebrow rv">Founder</span>
+    <div class="founder-grid">
+      <div class="portrait rv">
+        <div class="portrait-mark" aria-hidden="true">
+          <svg width="62" height="62" viewBox="0 0 32 32" fill="none">
+            <g stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
+              <path d="M4 16h9"/><path d="M13 16c6 0 6.5-8 14-8"/><path d="M13 16c6 0 6.5 8 14 8"/>
+            </g>
+            <circle cx="13" cy="16" r="2.2" fill="currentColor"/>
+          </svg>
+          <span class="portrait-mono">SM</span>
+        </div>
+        <div class="portrait-badge">
+          <div class="nm">Shriman Maheshwari</div>
+          <div class="rl">Founder</div>
+        </div>
+      </div>
+
+      <div class="founder-copy rv">
+        <h2 class="h-lg" style="margin-bottom:26px">The record was<br>always there.</h2>
+        <p>Shriman Maheshwari is a computer science student at BITS Pilani, Goa, on a dual-degree track to CentraleSupélec Paris in artificial intelligence. He builds systems that pull structure out of operational records that were never written to be read by a machine.</p>
+        <p>Before Ideonix he built NerveSight, an analytics layer over the transaction and inventory records of Indian industrial distributors — work that began in his family's electrical distribution business, doing by hand what a model should have been doing. Ideonix applies the same conviction to the most information-dense and least-read documents in biomanufacturing: the deviation file.</p>
+        <blockquote class="pull">Every transfer that failed was investigated. The answer was written down, approved and filed. Nobody had a way to read four hundred of them at once.</blockquote>
+        <div class="btn-row">
+          <a class="btn btn--accent" href="mailto:founder@ideonix.cloud">founder@ideonix.cloud</a>
+          <a class="btn btn--ghost" href="https://www.linkedin.com/in/shriman-maheshwari/" target="_blank" rel="noopener noreferrer">LinkedIn</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ TRUST & DATA ============================ -->
+<section class="section" id="trust">
+  <div class="wrap">
+    <span class="eyebrow rv">Trust &amp; data</span>
+    <h2 class="h-xl rv" style="max-width:17ch;margin-bottom:clamp(34px,4vw,54px)">Deviation files are the most sensitive documents in the building.</h2>
+    <div class="trust-grid">
+      <div class="rv">
+        <p class="lead">They are treated that way. Single-tenant deployment where it is required, customer-managed encryption keys, role-based access scoped to the program, and a hard architectural line between your process data and the shared archetype library. No cross-customer model training without explicit contractual opt-in — and the entry engagement is a fixed-fee retrospective on a transfer you have already completed, so nothing forward-looking is committed before the model has proved itself against your own history.</p>
+        <div class="tags">
+          <span class="tag">21 CFR Part 11</span>
+          <span class="tag">GAMP 5 categorised</span>
+          <span class="tag">Single-tenant option</span>
+          <span class="tag">Customer-managed keys</span>
+          <span class="tag">RBAC by program</span>
+          <span class="tag">Full audit trail</span>
+          <span class="tag">Provenance-linked outputs</span>
+          <span class="tag">No cross-customer training</span>
+        </div>
+      </div>
+      <div class="dotgrid rv">
+        <div class="panel" style="background:var(--surface);margin-bottom:24px">
+          <div class="panel-head"><span>Data boundary</span><span class="status status--ok">Enforced</span></div>
+          <div class="rows">
+            <div class="row"><span>process data</span><span>customer tenant</span></div>
+            <div class="row"><span>deviation corpus</span><span>customer tenant</span></div>
+            <div class="row"><span>molecule identity</span><span class="ok">never shared</span></div>
+            <div class="row"><span>process topology</span><span class="acc">opt-in only</span></div>
+            <div class="row"><span>equipment class</span><span class="acc">opt-in only</span></div>
+          </div>
+        </div>
+        <div class="btn-row">
+          <a class="btn btn--accent" href="mailto:founder@ideonix.cloud?subject=Ideonix%20demo">Book a demo</a>
+          <a class="btn btn--ghost" href="mailto:founder@ideonix.cloud?subject=Security%20brief">Request the security brief</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ FINAL CTA ============================ -->
+<section class="section final">
+  <div class="wrap">
+    <span class="eyebrow rv">Get started</span>
+    <h2 class="rv"><span>Give us a transfer</span><span>that already failed.</span></h2>
+    <p class="lead rv" style="margin:0 auto 36px;text-align:center">We will produce the risk forecast we would have produced before it started, and you can compare it to what actually happened.</p>
+    <div class="btn-row rv">
+      <a class="btn btn--accent" href="mailto:founder@ideonix.cloud?subject=Ideonix%20retrospective">Book a demo</a>
+      <a class="btn btn--ghost" href="mailto:founder@ideonix.cloud">founder@ideonix.cloud</a>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<!-- ============================ FOOTER ============================ -->
+<footer class="footer">
+  <div class="wrap">
+    <div class="footer-top">
+      <div>
+        <a class="brand" href="#top" aria-label="Ideonix home">
+          <svg class="brand-mark" viewBox="0 0 32 32" fill="none" aria-hidden="true">
+            <g stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
+              <path d="M4 16h9"/><path d="M13 16c6 0 6.5-8 14-8"/><path d="M13 16c6 0 6.5 8 14 8"/>
+            </g>
+            <circle cx="13" cy="16" r="2.6" fill="currentColor"/>
+          </svg>
+          <span class="brand-name">Ideonix</span>
+        </a>
+        <p class="footer-tag">The executable model of a biomanufacturing process.</p>
+      </div>
+      <div class="fcol">
+        <h4>Platform</h4>
+        <a href="#how">The Process Model</a>
+        <a href="#capabilities">Facility fit</a>
+        <a href="#capabilities">Comparability</a>
+        <a href="#how">Risk forecast</a>
+      </div>
+      <div class="fcol">
+        <h4>Who it's for</h4>
+        <span>Heads of MSAT</span>
+        <span>Clinical-stage biotech</span>
+        <span>Large pharma tech ops</span>
+        <span>CDMOs</span>
+      </div>
+      <div class="fcol">
+        <h4>Standards</h4>
+        <span>ICH Q5E</span>
+        <span>ICH Q10</span>
+        <span>ICH Q12</span>
+        <span>GAMP 5 · 21 CFR Part 11</span>
+      </div>
+      <div class="fcol">
+        <h4>Company</h4>
+        <a href="#founder">Founder</a>
+        <a href="mailto:founder@ideonix.cloud">Contact</a>
+        <a href="#trust">Trust &amp; data</a>
+        <a href="https://www.linkedin.com/in/shriman-maheshwari/" target="_blank" rel="noopener noreferrer">LinkedIn</a>
+      </div>
+    </div>
+    <p class="watermark" aria-hidden="true">IDEONIX</p>
+    <div class="footer-bottom">
+      <span>© 2026 Ideonix. All rights reserved.</span>
+      <span>Founded by Shriman Maheshwari · <a href="https://ideonix.cloud">ideonix.cloud</a></span>
+    </div>
+  </div>
+</footer>
+
+<script>
+(function(){
+  "use strict";
+  var reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  /* ---- nav condense on scroll ---- */
+  var nav = document.getElementById("nav");
+  function onScroll(){
+    if(window.scrollY > 40){ nav.classList.add("is-scrolled"); }
+    else { nav.classList.remove("is-scrolled"); }
+  }
+  onScroll();
+  window.addEventListener("scroll", onScroll, {passive:true});
+
+  /* ---- mobile menu ---- */
+  var burger = document.getElementById("burger");
+  var menu = document.getElementById("mobileMenu");
+  function closeMenu(){
+    menu.classList.remove("is-open");
+    burger.setAttribute("aria-expanded","false");
+    burger.setAttribute("aria-label","Open menu");
+    document.body.style.overflow = "";
+  }
+  burger.addEventListener("click", function(){
+    var open = menu.classList.toggle("is-open");
+    burger.setAttribute("aria-expanded", open ? "true" : "false");
+    burger.setAttribute("aria-label", open ? "Close menu" : "Open menu");
+    document.body.style.overflow = open ? "hidden" : "";
+  });
+  Array.prototype.forEach.call(menu.querySelectorAll("a"), function(a){
+    a.addEventListener("click", closeMenu);
+  });
+  document.addEventListener("keydown", function(e){
+    if(e.key === "Escape" && menu.classList.contains("is-open")){ closeMenu(); burger.focus(); }
+  });
+
+  /* ---- scroll reveal ---- */
+  var revealables = document.querySelectorAll(".rv");
+  if(reduce || !("IntersectionObserver" in window)){
+    Array.prototype.forEach.call(revealables, function(el){ el.classList.add("is-in"); });
+  } else {
+    var ro = new IntersectionObserver(function(entries){
+      entries.forEach(function(entry){
+        if(entry.isIntersecting){
+          entry.target.classList.add("is-in");
+          ro.unobserve(entry.target);
+        }
+      });
+    }, {threshold:0.12, rootMargin:"0px 0px -8% 0px"});
+    Array.prototype.forEach.call(revealables, function(el, i){
+      el.style.transitionDelay = Math.min(i % 4, 3) * 70 + "ms";
+      ro.observe(el);
+    });
+  }
+
+  /* ---- demo card: sequential workers ---- */
+  var demo = document.getElementById("demo");
+  var workers = demo ? demo.querySelectorAll("[data-w]") : [];
+  var done = document.getElementById("demoDone");
+  if(reduce || !("IntersectionObserver" in window)){
+    Array.prototype.forEach.call(workers, function(w){ w.classList.add("is-in"); });
+    if(done){ done.classList.add("is-in"); }
+  } else if(demo) {
+    var played = false;
+    var dobs = new IntersectionObserver(function(entries){
+      entries.forEach(function(entry){
+        if(entry.isIntersecting && !played){
+          played = true;
+          Array.prototype.forEach.call(workers, function(w, i){
+            setTimeout(function(){ w.classList.add("is-in"); }, 520 + i * 620);
+          });
+          setTimeout(function(){
+            if(done){ done.classList.add("is-in"); }
+          }, 520 + workers.length * 620 + 260);
+          dobs.disconnect();
+        }
+      });
+    }, {threshold:0.22});
+    dobs.observe(demo);
+  }
+
+  /* ---- active nav link follows scroll ---- */
+  var links = Array.prototype.slice.call(document.querySelectorAll(".nav-link"));
+  var sections = links.map(function(l){
+    return document.querySelector(l.getAttribute("href"));
+  });
+  function setActive(){
+    var pos = window.scrollY + window.innerHeight * 0.32;
+    var current = -1;
+    sections.forEach(function(sec, i){
+      if(sec && sec.offsetTop <= pos){ current = i; }
+    });
+    links.forEach(function(l, i){ l.classList.toggle("is-active", i === current); });
+  }
+  setActive();
+  window.addEventListener("scroll", setActive, {passive:true});
+  window.addEventListener("resize", setActive);
+})();
+</script>
+</body>
+</html>
