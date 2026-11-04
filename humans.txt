@@ -1,0 +1,17 @@
+/* TEAM */
+  Founder & CEO: Shriman Maheshwari
+  Contact: founder [at] ideonix.cloud
+  LinkedIn: https://www.linkedin.com/in/shriman-maheshwari/
+
+/* SITE */
+  Last updated: 2026-11-04
+  Language: English
+  Doctype: HTML5
+  Standards: HTML5, CSS3, ECMAScript 2015+
+  Components: None. Single self-contained page, no framework, no build step.
+  Typography: Inter, JetBrains Mono
+  Hosting: GitHub Pages
+
+/* IDEONIX */
+  Ideonix builds the executable model of a biomanufacturing process, so a
+  receiving site can interrogate a technology transfer before the first GMP batch.

@@ -1,0 +1,19 @@
+# robots.txt — ideonix.cloud
+User-agent: *
+Allow: /
+Disallow: /404.html
+
+# AI / answer engines are welcome; see /llms.txt for a plain-language summary.
+User-agent: GPTBot
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+Sitemap: https://ideonix.cloud/sitemap.xml

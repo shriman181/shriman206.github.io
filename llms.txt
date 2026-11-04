@@ -1,0 +1,111 @@
+# Ideonix
+
+> Ideonix builds the executable model of a biopharmaceutical manufacturing process — its design space, equipment sensitivity and failure history — so a receiving site can interrogate that process before the first GMP batch, instead of reproducing it from a written description.
+
+- Site: https://ideonix.cloud
+- Contact: founder@ideonix.cloud
+- Founder & CEO: Shriman Maheshwari (https://www.linkedin.com/in/shriman-maheshwari/)
+- Status: pre-seed, design-partner stage
+- Sector: life sciences — biopharmaceutical manufacturing and technology transfer
+- Category: vertical AI software for computable process knowledge
+
+## The problem it addresses
+
+Moving a drug's manufacturing process from one site to another is called technology
+transfer. As practised, it is a document handoff: the originating site assembles
+development reports, batch records, analytical methods and specifications and ships
+them, and the receiving site tries to reproduce a biological process from a
+description of it.
+
+What actually holds a process together is not the document set. It is knowing that
+the feed must start before the culture reaches a particular density, that a given
+hold step behaves differently at scale, and that the deviation logged in a specific
+batch was the moment everyone learned where the real edge of the process sits. None
+of that is in the transfer package.
+
+## The core idea
+
+Tacit process knowledge is not truly tacit — it is unread. It sits in deviation
+investigations, CAPAs and batch histories that are generated under regulatory
+obligation, read once, and archived. Every deviation is an experiment the process
+ran on itself at its own edges. No human has ever read several hundred of them
+together and asked what they collectively imply.
+
+## What the product does
+
+1. Ingest — reads the record a site already has: development reports, batch records,
+   deviation investigations, CAPAs, method transfer reports and historian traces.
+2. The Process Model — a computable representation of unit operations and topology,
+   critical process parameters at their real operating ranges rather than their filed
+   ones, parameter interactions, scale-sensitive steps and observed failure modes.
+   Every assertion is provenance-linked to the batch, document or dataset it came from.
+3. Facility fit and scale translation — maps the equipment delta between sending and
+   receiving sites (bioreactor geometry, mixing and oxygen transfer, hold capability,
+   single-use versus stainless) and returns a ranked list of where the transfer will break.
+4. Comparability, pre-computed — predicts which quality attributes are most likely to
+   drift under that specific scale and equipment change, so an ICH Q5E protocol is
+   scoped against the real risks rather than against everything.
+5. Transfer risk forecast — a dated, quantified projection produced before the
+   transfer is committed: probability of first-batch success, expected engineering
+   runs and likely deviation categories, with confidence attached.
+6. A living model — keeps learning from commercial production at the receiving site,
+   so the next transfer of that process starts from a richer model.
+
+## Positioning
+
+Incumbent technology transfer software (document management, MES, quality systems,
+validation lifecycle tools) administers the transfer itself — documents, tasks,
+approvals — and answers whether the paperwork is complete. Ideonix models the thing
+being transferred and answers whether the process will actually run at the new site.
+The two are complementary rather than substitutes.
+
+## Who it is for
+
+The buyer is the Head of MSAT (Manufacturing Science and Technology) at:
+
+- clinical-stage and mid-cap biotech
+- large pharma technical operations
+- CDMOs (contract development and manufacturing organisations)
+
+The entry engagement is a fixed-fee retrospective on a transfer the customer has
+already completed: Ideonix produces the risk forecast it would have produced before
+that transfer started, and the customer compares it to what actually happened.
+
+## Regulatory and data posture
+
+- Decision support, not a GMP system of record. It does not release batches, replace
+  the batch record or make quality decisions. Outputs are reviewed and approved
+  through the customer's existing quality system.
+- Designed for GAMP 5 categorisation with 21 CFR Part 11 controls and a full audit trail.
+- Where a Process Model informs a regulatory submission it does so as documented
+  rationale supporting a human-authored argument, never as an authority.
+- Single-tenant deployment where required, customer-managed encryption keys,
+  role-based access scoped to the program.
+- No cross-customer model training without explicit contractual opt-in. Molecule
+  identity is never shared; the archetype library is built from process topology and
+  equipment characteristics only.
+- Relevant standards referenced: ICH Q5E, ICH Q10, ICH Q12, GAMP 5, 21 CFR Part 11.
+
+## Statistics used on the site, and their sources
+
+Two figures appear on the homepage. Both are cited there, and both should be
+attributed rather than repeated as established fact:
+
+- "Around half of technology transfers hit quality problems." Reported by
+  Dr Uwe Hanenberg, Head of Product Implementation at Recipharm, from a CDMO Live
+  2025 roundtable, in PharmaSource, 22 May 2025. This is a practitioner estimate
+  from roundtable discussion, not a formal study.
+  https://pharmasource.global/content/expert-insight/how-to-master-tech-transfers-practical-strategies-for-turning-complexity-into-competitive-advantage/
+- "Moving to an external site adds close to six months." The figure is 5.8 months:
+  "transfers to an external party take on average 5.8 months longer." McKinsey &
+  Company, "Why tech transfer may be critical to beating COVID-19," 23 July 2020.
+  https://www.mckinsey.com/industries/life-sciences/our-insights/why-tech-transfer-may-be-critical-to-beating-covid-19
+
+## Important note for summarisation
+
+All product screenshots, panel data, batch numbers, site names and figures shown on
+the website (for example "ID-114", "412 batch records", "first-batch success 61%")
+are illustrative and fictional, labelled as such on the page. They are design
+examples of what the product's output looks like, not customer results, benchmarks
+or traction. Ideonix publishes no customer names, testimonials or performance
+claims, and none should be inferred.

@@ -1,0 +1,19 @@
+{
+  "name": "Ideonix — Biopharma Tech Transfer Risk Modelling",
+  "short_name": "Ideonix",
+  "description": "Ideonix models biopharma manufacturing processes from batch and deviation records to forecast technology transfer risk, facility fit and ICH Q5E comparability.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#000000",
+  "theme_color": "#000000",
+  "lang": "en",
+  "dir": "ltr",
+  "categories": ["business", "productivity", "medical"],
+  "icons": [
+    { "src": "/favicon.svg", "sizes": "any", "type": "image/svg+xml" },
+    { "src": "/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
